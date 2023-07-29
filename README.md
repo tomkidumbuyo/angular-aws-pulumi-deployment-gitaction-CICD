@@ -1,27 +1,28 @@
-# Tomasi
+# Angular deployment using Pulumi and GitActions
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.2.5.
+This repository is a basic angular project that is configured to be deployed an AWS S3 bucket with cloudfront CDN. The deployment will be handled automatically when we push to master. CICD is configured by Github Actions and Pulumi as IaC
 
-## Development server
+### How to use this template
+Please follow the following steps to deploy
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## 1. Have an AWS account
+First you need to have an AWS account.
 
-## Code scaffolding
+## 2. Create an IAM user for your AWS account
+Create an AWS IAMuser. Assign this user permision to create S3, Cloudfront, Certificates and edit route 53.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## 3. Create a route 53 hosted zone for your Domain Name
+If you already have a domain name please add the domain name to Route53. do not worry about the SSL Certification. this project will handle it for you.
 
-## Build
+## 4. Create pulumi account
+If you already have an account you will need an access token from the account. Currently this project is configured to create stack in local accounts, but you change this in the pulumi conifguration.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## 5. Add the following variables to your secrets lists on the repository
+- `PULUMI_ACCESS_TOKEN`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
 
-## Running unit tests
+#### 6. Add the following variables to your Variables lists on the repository
+- `DOMAIN_NAME`
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.

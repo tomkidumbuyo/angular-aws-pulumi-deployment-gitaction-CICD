@@ -1,0 +1,67 @@
+
+name: Deploy Frontend to AWS
+on:
+  push:
+    branches: [ main, master ]
+env:
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Deploy angular project to an s3 butcket and a clodfront cdn with a domain name
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Build Angular to static Web App
+        id: build
+        run: yarn && yarn build:prod
+
+      - name: Install pulumi dependencies
+        run: npm install
+        working-directory: pulumi
+
+      - name: Install Pulumi CLI
+        uses: pulumi/action-install-pulumi-cli@v1.0.1
+
+      - name: Create Pulumi Stack if we dont have one yet
+        working-directory: pulumi
+        run: pulumi stack init github-deployment
+        continue-on-error: true
+
+      - name: Add configuration to the Pulumi stack
+        working-directory: pulumi
+        run: |
+          pulumi stack select github-deployment
+          pulumi config set aws:region ${{ secrets.AWS_REGION }}
+          pulumi config set domainName ${{ vars.DOMAIN_NAME }}
+          pulumi config set errorDocument error.html
+          pulumi config set indexDocument index.html
+          pulumi config set path ./www
+
+      - name: Dstroy previous Pulumi deployment
+        uses: pulumi/actions@v4
+        with:
+          command: destroy
+          stack-name: github-deployment
+          work-dir: pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Deploy Change using pulumi
+        uses: pulumi/actions@v4
+        with:
+          command: up
+          stack-name: github-deployment
+          work-dir: pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+

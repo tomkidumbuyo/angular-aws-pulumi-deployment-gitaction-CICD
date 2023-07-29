@@ -1,0 +1,7 @@
+config:
+  aws:profile: pulumi-personal
+  aws:region: us-east-1
+  tomasi:domainName: tomasi.work
+  tomasi:errorDocument: error.html
+  tomasi:indexDocument: index.html
+  tomasi:path: ./www
